@@ -5,7 +5,7 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-        File inputFile = new File("inputFile.txt");          /* Initialising file with input intervals */
+        File inputFile = new File("in_E_1_Nowik.txt");          /* Initialising file with input intervals */
         Scanner scanner = new Scanner(inputFile);
 
         int intervalsAmount = scanner.nextInt();
@@ -16,11 +16,29 @@ public class Main {
             inputIntervals[i][1] = scanner.nextInt();
         }
 
+        int[][] outputIntervals1 = solution1(inputIntervals);
+
+        // Writes output data into the file
+        try (FileWriter outputFile = new FileWriter("output.txt")) {
+            outputFile.write(Integer.toString(outputIntervals1.length+1) + '\n');
+            for (int i = 0; i <= outputIntervals1.length; i++) {
+                String output = Integer.toString(outputIntervals1[i][0]) + ' ' + Integer.toString(outputIntervals1[i][1]) + '\n';
+                outputFile.write(output);
+            }
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static int[][] solution1 (int[][] inputIntervals) {
+        if (inputIntervals == null || inputIntervals.length <= 1) return inputIntervals;
+        int intervalsAmount = inputIntervals.length;
         // sorting
         inputIntervals = sortArray(inputIntervals);
 
         // adding intervals
-        int[][] outputIntervals = new int[intervalsAmount][2];
+        int[][] mergedIntervals = new int[intervalsAmount][2];
         int[] currentInterval = inputIntervals[0];
         int counter = 0;
 
@@ -34,23 +52,16 @@ public class Main {
                 currentInterval[1] = Math.max(currentInterval[1], inputIntervals[i][1]);
             }
             else {
-                outputIntervals[counter++] = currentInterval;
+                mergedIntervals[counter++] = currentInterval;
                 currentInterval = inputIntervals[i];
             }
         }
-        outputIntervals[counter] = currentInterval;                             /* adds the last interval */
+        mergedIntervals[counter] = currentInterval;                                 /* adds the last interval */
+        // Creates a new array outputIntervals, containing only non-empty elements
+        int[][] outputIntervals = new int[counter][2];
+        System.arraycopy(mergedIntervals, 0, outputIntervals, 0, counter);
 
-        // Writes output data into the file
-        try (FileWriter outputFile = new FileWriter("output.txt")) {
-            outputFile.write(Integer.toString(counter+1) + '\n');
-            for (int i = 0; i <= counter; i++) {
-                String output = Integer.toString(outputIntervals[i][0]) + ' ' + Integer.toString(outputIntervals[i][1]) + '\n';
-                outputFile.write(output);
-            }
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
+        return outputIntervals;
     }
 
     public static int[][] sortArray(int[][] inputArray) {
