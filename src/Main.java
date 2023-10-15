@@ -9,20 +9,30 @@ public class Main {
         Scanner scanner = new Scanner(inputFile);
 
         int intervalsAmount = scanner.nextInt();
-        int[][] inputIntervals = new int[intervalsAmount][2];        /* Initialises an array for storing given intervals */
+        int[][] inputIntervals1 = new int[intervalsAmount][2];   /* Initialises two equal arrays for storing given intervals */
+        int[][] inputIntervals2 = new int[intervalsAmount][2];
 
         for (int i = 0; i < intervalsAmount; i++) {                 /* Fills input intervals into the array */
-            inputIntervals[i][0] = scanner.nextInt();
-            inputIntervals[i][1] = scanner.nextInt();
+            inputIntervals1[i][0] = scanner.nextInt();
+            inputIntervals1[i][1] = scanner.nextInt();
+            inputIntervals2[i][0] = inputIntervals1[i][0];
+            inputIntervals2[i][1] = inputIntervals1[i][1];
         }
 
-        int[][] outputIntervals1 = solution1(inputIntervals);
+        int[][] outputIntervals1 = solution1(inputIntervals1);
+        int[][] outputIntervals2 = solution2(inputIntervals2);
 
         // Writes output data into the file
         try (FileWriter outputFile = new FileWriter("output.txt")) {
-            outputFile.write(Integer.toString(outputIntervals1.length+1) + '\n');
-            for (int i = 0; i <= outputIntervals1.length; i++) {
-                String output = Integer.toString(outputIntervals1[i][0]) + ' ' + Integer.toString(outputIntervals1[i][1]) + '\n';
+            outputFile.write(Integer.toString(outputIntervals1.length) + '\n');
+            for (int i = 0; i < outputIntervals1.length; i++) {
+                String output = Integer.toString(outputIntervals1[i][0]) + ' ' + outputIntervals1[i][1] + '\n';
+                outputFile.write(output);
+            }
+
+            outputFile.write(Integer.toString(outputIntervals2.length) + '\n');
+            for (int i = 0; i < outputIntervals2.length; i++) {
+                String output = Integer.toString(outputIntervals2[i][0]) + ' ' + outputIntervals2[i][1] + '\n';
                 outputFile.write(output);
             }
         }
@@ -39,7 +49,7 @@ public class Main {
 
         // adding intervals
         int[][] mergedIntervals = new int[intervalsAmount][2];
-        int[] currentInterval = inputIntervals[0];
+        int[] currentInterval = inputIntervals[0].clone();
         int counter = 0;
 
         for (int i = 1; i < intervalsAmount; i++) {
@@ -56,7 +66,7 @@ public class Main {
                 currentInterval = inputIntervals[i];
             }
         }
-        mergedIntervals[counter] = currentInterval;                                 /* adds the last interval */
+        mergedIntervals[counter++] = currentInterval;                                 /* adds the last interval */
         // Creates a new array outputIntervals, containing only non-empty elements
         int[][] outputIntervals = new int[counter][2];
         System.arraycopy(mergedIntervals, 0, outputIntervals, 0, counter);
@@ -95,5 +105,37 @@ public class Main {
             outputArray[i] = array1[pointer1][0] < array2[pointer2][0] ? array1[pointer1++] : array2[pointer2++];
         }
         return outputArray;
+    }
+
+    public static int[][] solution2 (int[][] inputIntervals) {
+        if (inputIntervals == null || inputIntervals.length <= 1) return inputIntervals;
+        int[][] mergedIntervals = new int[inputIntervals.length][2];
+        int maxValue = 1000;                    /* value was given in the task description */
+        int[] numberLine = new int[maxValue];   /* number line would have an offset of -1 */
+
+        // Fills the number line with '1' if there is interval lying at this position from the given data. Otherwise, it's '0'
+        for (int i = 0; i < inputIntervals.length; i++) {
+            for (int j = inputIntervals[i][0] - 1; j < inputIntervals[i][1]; j++) {
+                numberLine[j] = 1;
+            }
+        }
+        // Reformats merged intervals from a number line into an array of limits
+        int counter = 0;
+        boolean insideInterval = false;
+        for (int i = 0; i < maxValue; i++) {
+            if (!insideInterval && numberLine[i] == 1) {
+                mergedIntervals[counter][0] = i + 1;
+                insideInterval = true;
+            }
+            else if (insideInterval && (numberLine[i] == 0 || i + 1 == maxValue)) {
+                mergedIntervals[counter++][1] = i;
+                insideInterval = false;
+            }
+        }
+        // Creates a new array outputIntervals, containing only non-empty elements
+        int[][] outputIntervals = new int[counter][2];
+        System.arraycopy(mergedIntervals, 0, outputIntervals, 0, counter);
+
+        return outputIntervals;
     }
 }
