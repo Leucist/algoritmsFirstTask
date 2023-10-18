@@ -5,7 +5,7 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-        File inputFile = new File("in_E_1_Nowik.txt");          /* Initialising file with input intervals */
+        File inputFile = new File("input.txt");          /* Initialising file with input intervals */
         Scanner scanner = new Scanner(inputFile);
 
         int intervalsAmount = scanner.nextInt();
@@ -113,23 +113,29 @@ public class Main {
         int maxValue = 1000;                    /* value was given in the task description */
         int[] numberLine = new int[maxValue];   /* number line would have an offset of -1 */
 
-        // Fills the number line with '1' if there is interval lying at this position from the given data. Otherwise, it's '0'
+        // Fills the number line with '1' (start with '2') if there is interval lying at this position from the given data. Otherwise, it's '0'
         for (int i = 0; i < inputIntervals.length; i++) {
-            for (int j = inputIntervals[i][0] - 1; j < inputIntervals[i][1]; j++) {
-                numberLine[j] = 1;
+            int j = inputIntervals[i][0] - 1;
+            numberLine[j] = numberLine[j++] == 1 ? 1 : 2;
+            while(j < inputIntervals[i][1]) {
+                numberLine[j++] = 1;
             }
         }
         // Reformats merged intervals from a number line into an array of limits
         int counter = 0;
         boolean insideInterval = false;
         for (int i = 0; i < maxValue; i++) {
-            if (!insideInterval && numberLine[i] == 1) {
+            if (!insideInterval && numberLine[i] == 2) {
                 mergedIntervals[counter][0] = i + 1;
                 insideInterval = true;
             }
             else if (insideInterval && (numberLine[i] == 0 || i + 1 == maxValue)) {
                 mergedIntervals[counter++][1] = i;
                 insideInterval = false;
+            }
+            else if (insideInterval && numberLine[i] == 2) {
+                mergedIntervals[counter++][1] = i;
+                mergedIntervals[counter][0] = i + 1;
             }
         }
         // Creates a new array outputIntervals, containing only non-empty elements

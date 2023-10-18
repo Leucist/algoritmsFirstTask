@@ -3,7 +3,7 @@ import random
 random.seed()
 intervalsAmount = 1000000
 
-with open("inputFile.txt", "w") as inputFile:
+with open("input.txt", "w") as inputFile:
 	inputFile.write(str(intervalsAmount) + '\n')
 	for i in range(intervalsAmount):
 		a = b = random.randint(1, 999)
